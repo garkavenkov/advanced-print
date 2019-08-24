@@ -124,6 +124,29 @@ class AdvancedPrint
     }
 
     /**
+     * Convert percent into string
+     *
+     * @param integer $percent
+     * @return string
+     */
+    private static function makePercentage(int $percent): string
+    {
+        switch (strlen($percent)) {
+            case 1:
+                $percent = "  " . $percent;
+                break;
+            case 2:
+                $percent = " " . $percent;
+                break;
+            case 3:
+                $percent = $percent;
+                break;
+        }
+
+        return $percent;
+    }
+
+    /**
      * Print colored string
      *
      * @param string $msg
@@ -145,23 +168,16 @@ class AdvancedPrint
     public static function printPercentage(string $msg, int $total, int $item, string $pn_color = null, string $ps_color = null)
     {
         $percent = round(($item/$total)*100);
-        switch (strlen($percent)) {
-            case 1:
-                $percent = "  " . $percent;
-                break;
-            case 2:
-                $percent = " " . $percent;
-                break;
-            case 3:
-                $percent = $percent;
-                break;
-        }
-        $percent_number  = $pn_color ? ( $pn_color . $percent) : $percent;
-        $percent_symbol  = $ps_color ? ( $ps_color . '%') : '%';
-
-        $msg = self::parse_colors($msg) . self::parse_colors($percent_number) . self::parse_colors($percent_symbol);
+        
+        $percentage = self::makePercentage($percent, $pn_color, $ps_color);
+        
+        $percentage  = $pn_color ? ( $pn_color . $percentage) : $percentage;
+        $percentage  = $ps_color ? ( $ps_color . '%') : '%';
+        
+        $msg = self::parse_colors($msg) . self::parse_colors($percentage);
         
         // "\033[?25l"  -   Hide the cursor. 
+        // "\033[?25h"  -   Show the cursor.
         // "\033[0K\r"  -   Delete everything from the cursor to the end of the line.     
         
         if ($percent < 100) {
@@ -170,4 +186,64 @@ class AdvancedPrint
             echo "\033[0K\r". $msg . "\033[?25h" .PHP_EOL;
         }
     }    
+
+     /**
+     * Print ProgressBar 
+     * @param  string $msg    String to output
+     * @param  int    $total  Total value
+     * @param  int    $item   Current value
+     * @param  string $fill   Symbol for fill progress bar
+     * @param  int    $length Progress bar length
+     */
+    public static function printProgressBar(string $msg, int $total, int $item, string $fill, string $pn_color = null, string $ps_color = null, int $length=null)
+    {
+        if (!self::$trm_width) {
+            self::$trm_width = exec('tput cols');
+        }
+
+        // Message length
+        $msg_length = strlen(preg_replace("/\[([a-z_A-Z]+)\]/", "", $msg));        
+
+        // Calculate percent
+        $percent = round(($item/$total)*100);
+ 
+        $percentage = self::makePercentage($percent);
+        
+        // Percent length
+        $percentage_length = strlen($percentage)+1;     
+        
+       
+        $percentage  =  ( $pn_color ? ( $pn_color . $percentage) : $percentage ) . 
+                        ( $ps_color ? ( $ps_color . '%') : '%' );
+      
+        // Progress Bar length
+        $progress_bar_length = self::$trm_width - $msg_length - $percentage_length - 2;
+
+        // Progress Bar Step
+        $progress_step = $progress_bar_length/100;
+
+        $msg = self::parse_colors($msg);
+
+        // Fill Progres Bar
+        if ($percent < 100) {
+            $fill_str = round($percent*$progress_step);
+            echo    "\033[0K\r".
+                    "\033[?25l".
+                    $msg . 
+                    '[' .
+                    str_repeat("\e[1;32m".$fill."\e[0m", $fill_str) .
+                    str_repeat(' ', $progress_bar_length - $fill_str) .
+                    ']' .
+                    self::parse_colors($percentage);
+        } else {
+            echo    "\033[0K\r".
+                    $msg . 
+                    '[' .
+                    str_repeat("\e[1;32m".$fill."\e[0m", $progress_bar_length) . 
+                    ']'.
+                    self::parse_colors($percentage) .  
+                    PHP_EOL . 
+                    "\033[?25h";
+        }
+    }
 }
