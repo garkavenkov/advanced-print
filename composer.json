@@ -1,0 +1,19 @@
+{
+    "name": "garkavenkov/advanced-print",
+    "description": "Colorizes output text in terminal.",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Maksim Garkavenkov",
+            "email": "maksim.garkavenkov@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "AdvancedPrint\\": "src/"
+        }
+    }
+}
