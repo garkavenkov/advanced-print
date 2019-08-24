@@ -123,7 +123,6 @@ class AdvancedPrint
         return $msg;
     }
 
-
     /**
      * Print colored string
      *
@@ -135,4 +134,40 @@ class AdvancedPrint
         echo self::parse_colors($msg) . self::$color_esc['NC'] . ($new_line ? PHP_EOL : '');
     }
 
+    /**
+     * Print string with percent progress
+     * @param  string $msg          String to output
+     * @param  int    $total        Total number
+     * @param  int    $item         Current item
+     * @param  string $pn_color     Color for percent value. 
+     * @param  string $ps_color     Color for percent symbol
+     */
+    public static function printPercentage(string $msg, int $total, int $item, string $pn_color = null, string $ps_color = null)
+    {
+        $percent = round(($item/$total)*100);
+        switch (strlen($percent)) {
+            case 1:
+                $percent = "  " . $percent;
+                break;
+            case 2:
+                $percent = " " . $percent;
+                break;
+            case 3:
+                $percent = $percent;
+                break;
+        }
+        $percent_number  = $pn_color ? ( $pn_color . $percent) : $percent;
+        $percent_symbol  = $ps_color ? ( $ps_color . '%') : '%';
+
+        $msg = self::parse_colors($msg) . self::parse_colors($percent_number) . self::parse_colors($percent_symbol);
+        
+        // "\033[?25l"  -   Hide the cursor. 
+        // "\033[0K\r"  -   Delete everything from the cursor to the end of the line.     
+        
+        if ($percent < 100) {
+            echo "\033[0K\r". $msg . "\033[?25l";
+        } else {
+            echo "\033[0K\r". $msg . "\033[?25h" .PHP_EOL;
+        }
+    }    
 }
