@@ -147,14 +147,25 @@ class AdvancedPrint
     }
 
     /**
-     * Print colored string
+     * Print colored string without line-break
      *
      * @param string $msg
      * @return void
      */
-    public static function print(string $msg, bool $new_line = true)
+    public static function print(string $msg)
     {
-        echo self::parse_colors($msg) . self::$color_esc['NC'] . ($new_line ? PHP_EOL : '');
+        echo self::parse_colors($msg) . self::$color_esc['NC'];
+    }
+
+    /**
+     * Print colored string with line-break
+     *
+     * @param string $msg
+     * @return void
+     */
+    public static function printLn(string $msg)
+    {
+        echo self::print($msg) . self::$color_esc['NC'] . PHP_EOL;
     }
 
     /**
