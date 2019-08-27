@@ -182,9 +182,10 @@ class AdvancedPrint
         
         $percentage = self::makePercentage($percent, $pn_color, $ps_color);
         
-        $percentage  = $pn_color ? ( $pn_color . $percentage) : $percentage;
-        $percentage  = $ps_color ? ( $ps_color . '%') : '%';
-        
+       
+        $percentage  =  ( $pn_color ? ( $pn_color . $percentage) : $percentage ) . 
+                        ( $ps_color ? ( $ps_color . '%') : '%' );
+                        
         $msg = self::parse_colors($msg) . self::parse_colors($percentage);
         
         // "\033[?25l"  -   Hide the cursor. 
