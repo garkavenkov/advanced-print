@@ -238,7 +238,7 @@ class AdvancedPrint
      */
     public static function print(string $msg)
     {
-        echo self::$color_esc['Reset'] . self::parse_colors($msg) . self::$color_esc['Reset'];
+        echo self::$color_esc['Reset'] . self::parse_colors($msg) . self::$color_esc['Reset'];        
     }
 
     /**
@@ -250,6 +250,60 @@ class AdvancedPrint
     public static function printLn(string $msg)
     {
         echo self::print($msg) . self::$color_esc['Reset'] . PHP_EOL;
+    }
+
+    /**
+     * Print formatted string filled with character.
+     *
+     * @param string $msg           String to print
+     * @param integer $length       Formatted string length: Default - 0 (Terminal length)
+     * @param integer $position     Text position in string: 0 - left, 1 - center, 2 - right. Defaul - 0
+     * @param string $fill          Fill symbol
+     * @param boolean $new_line     Print with line-break
+     * @return void
+     */
+    public static function printf(string $msg, int $length=0, int $position=0, string $fill='', bool $new_line = false): void
+    {
+        $clean_msg = preg_replace("/\[([A-z_]+)\]/", '', $msg);
+
+        $clean_msg_lenght = strlen($clean_msg);
+        
+        if ($length == 0) {
+            $length = self::getTerminalColumnCount();
+        }
+
+        $msg = self::parse_colors($msg);        
+
+        if($length >= $clean_msg_lenght) {            
+
+            $free_space = $length - $clean_msg_lenght;
+
+            switch ($position) {
+                case 0:                    
+                    $msg = $msg . str_repeat($fill, $free_space);
+                    break;
+                case 1:                                        
+                    $left = round($free_space / 2);
+                    $right = $free_space - $left;                    
+                    $filled_msg =  str_repeat($fill, $left) . $clean_msg . str_repeat($fill, $right);       
+                    $msg = str_replace($clean_msg, $filled_msg, $msg );                    
+                    break;
+                case 2:
+                    $filled_msg =  str_repeat($fill, $free_space) . $clean_msg; 
+                    $msg = str_replace($clean_msg, $filled_msg, $msg);    
+                default:                    
+                    break;
+            }
+           
+        } else {
+
+            $trimmed_msg = substr($clean_msg, 0, $length);
+
+            $msg = str_replace($clean_msg, $trimmed_msg, $msg);
+
+        }
+
+        echo self::print($msg) . self::$color_esc['Reset'] . ($new_line ? PHP_EOL : '');
     }
 
     /**
