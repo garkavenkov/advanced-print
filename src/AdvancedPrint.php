@@ -349,7 +349,12 @@ class AdvancedPrint
      */
     public static function printProgressBar(string $msg, int $total, int $item, string $fill, string $pn_color = null, string $ps_color = null, int $length=null)
     {        
-        $columns = self::getTerminalColumnCount();
+        
+        if (!$length) {
+            $length = self::getTerminalColumnCount();
+        } else if ($length < 20) {
+            $length = 20;
+        }
      
         // Message length
         $msg_length = strlen(preg_replace("/\[([a-z_A-Z]+)\]/", "", $msg));        
@@ -365,7 +370,8 @@ class AdvancedPrint
         $percentage = self::makePercentageStr(percent: $percent_str, pn_color: $pn_color, ps_color: $ps_color);
         
         // Progress Bar length
-        $progress_bar_length = $columns - $msg_length - $percent_length - 2;
+        $progress_bar_length = $length - $msg_length - $percent_length - 2;
+        
         
         // Progress Bar Step
         $progress_step = $progress_bar_length/100;
