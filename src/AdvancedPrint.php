@@ -183,8 +183,10 @@ class AdvancedPrint
         $colors   = array_shift($matches);
         
         foreach ($patterns as $key => $value) {
-            $esc = self::$color_esc[$colors[$key]];
-            $msg = str_replace($value, $esc, $msg);
+            if(isset(self::$color_esc[$colors[$key]])) {
+                $esc = self::$color_esc[$colors[$key]];
+                $msg = str_replace($value, $esc, $msg);
+            }
         }
         
         return $msg;
